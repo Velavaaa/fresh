@@ -1,0 +1,73 @@
+# PostgreSQL configuration
+postgres:
+  replicaCount: 1
+  image:
+    repository: postgres
+    tag: "13"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 5432
+  env:
+    POSTGRES_USER: "postgres"
+    POSTGRES_DB: "people"
+  resources:
+    limits:
+      cpu: "500m"         # CPU limit for the container
+      memory: "512Mi"     # Memory limit for the container
+    requests:
+      cpu: "250m"         # Minimum CPU request for the container
+      memory: "256Mi"     # Minimum memory request for the container
+  storage:
+    size: 10Gi            # Size of the persistent volume
+    storageClassName: ""  # Storage class for the volume, leave empty to use the default
+
+
+# Backend configuration
+backend:
+  replicaCount: 1
+  image:
+    repository: poovizhiraj/backend-image
+    tag: v2
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+  env:
+    PGUSER: "postgres"
+    PGDATABASE: "people"
+    PGHOST: "myapp-postgres-service"
+    PGPORT: "5432"
+  labels:
+    version: "2"
+
+# Frontend configuration
+frontend:
+  replicaCount: 1
+  image:
+    repository: poovizhiraj/frontend-image
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: NodePort
+    port: 80
+    targetPort: 80
+    nodePort: 30001 # Change this to a different port if needed
+  labels:
+    version: "2"
+
+# Common labels
+commonLabels: {}
+
+# Ingress configuration (if needed)
+ingress:
+  enabled: false
+
+# Image pull secrets for private registries
+imagePullSecrets:
+  - name: my-registry-secret
+
+# Overrides for chart name
+nameOverride: ""
+fullnameOverride: ""
