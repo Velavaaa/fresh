@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # Use a lightweight web server to serve the built files
-FROM nginx:alpine
+FROM nginx:1.29.5-alpine3.23
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Expose port 80 for serving the Vue app
